@@ -21,7 +21,7 @@ class Trainer():
                                                 image_size=image_size,
                                                 shuffle=True,
                                                 crop_to_aspect_ratio=True)
-                                                
+             
         self.style_ds = K.utils.image_dataset_from_directory(
                                                 style_dir,
                                                 labels=None,
@@ -49,9 +49,9 @@ class Trainer():
         return mean, std
 
     def criterion(self, stylized_img : tf.Tensor, style_img : tf.Tensor, t : tf.Tensor):
-        stylized_content_feats = self.model.encode(stylized_img)
-        stylized_feats = self.model.encode(stylized_img, return_all=False)
-        style_feats = self.model.encode(style_img, return_all=False)
+        stylized_content_feats = self.model.encode(stylized_img, return_all=False)
+        stylized_feats = self.model.encode(stylized_img)
+        style_feats = self.model.encode(style_img)
 
         content_loss = self.mse_loss(t, stylized_content_feats)
 
@@ -60,7 +60,7 @@ class Trainer():
             m1, s1 = self._compute_mean_std(f1)
             m2, s2 = self._compute_mean_std(f2)
             style_loss += self.mse_loss(m1, m2) + self.mse_loss(s1, s2)
-        
+
         return content_loss + self.style_weight * style_loss
 
     def train(self):
