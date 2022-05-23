@@ -114,7 +114,7 @@ class StyleNet(K.Model):
     def encode(self, x, return_all=True):
         return self.encoder(x, return_all=return_all)
 
-    def call(self, inputs : list[tf.Tensor, tf.Tensor], alpha=1.0):
+    def call(self, inputs : tf.Tensor, alpha=1.0):
         content_imgs = inputs[0]
         style_imgs = inputs[1]
         content_feats = self.encoder(content_imgs)
@@ -126,9 +126,3 @@ class StyleNet(K.Model):
         out = self.decoder(t)
 
         return out, t
-
-# model = StyleNet()
-# c = tf.random.normal((8, 256, 256, 3))
-# s = tf.random.normal((8, 256, 256, 3))
-# out, t = model.predict(tf.stack([c, s]))
-# print(out.shape)
