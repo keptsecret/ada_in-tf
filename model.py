@@ -11,7 +11,7 @@ class AdaIN():
 
         return (s_std * (content_feats - c_mean) / c_std) + s_mean
 
-    def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8) -> tuple[tf.Tensor, tf.Tensor]:
+    def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
         """
         feats: Features should be in shape N x C x W x H
         """

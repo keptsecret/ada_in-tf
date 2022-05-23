@@ -4,7 +4,7 @@ import tensorflow.keras as K
 from model import StyleNet
 
 class Trainer():
-    def __init__(self, content_dir, style_dir, batch_size=32, epochs=10, lr=1e-3, s_wt=10.0) -> None:
+    def __init__(self, content_dir, style_dir, batch_size=32, epochs=10, lr=1e-3, s_wt=10.0):
         self.model = StyleNet()
         self.mse_loss = K.losses.MeanSquaredError()
 
@@ -38,7 +38,7 @@ class Trainer():
 
         self.optimizer = K.optimizers.Adam(learning_rate=lr)
 
-    def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8) -> tuple[tf.Tensor, tf.Tensor]:
+    def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
         """
         feats: Features should be in shape N x C x W x H
         """
