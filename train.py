@@ -4,11 +4,11 @@ import tensorflow.keras as K
 from model import StyleNet
 
 class Trainer():
-    def __init__(self, content_dir, style_dir, batch_size=32, epochs=10, lr=1e-3, s_wt=10.0):
+    def __init__(self, content_dir, style_dir, batch_size=32, num_iter=5e3, lr=1e-3, s_wt=10.0):
         self.model = StyleNet()
         self.mse_loss = K.losses.MeanSquaredError()
 
-        self.epochs = epochs
+        self.num_iter = num_iter
         self.batch_size = batch_size
         self.style_weight = s_wt
 
@@ -33,8 +33,11 @@ class Trainer():
         # some preprocessing may be needed
         normalize = K.layers.Rescaling(1./255)
         AUTOTUNE = tf.data.AUTOTUNE
-        self.content_ds = self.content_ds.map(lambda x: normalize(x)).prefetch(buffer_size=AUTOTUNE)
-        self.style_ds = self.style_ds.map(lambda x: normalize(x)).prefetch(buffer_size=AUTOTUNE)
+        self.content_ds = self.content_ds.map(lambda x: normalize(x)).prefetch(buffer_size=AUTOTUNE).repeat()
+        self.style_ds = self.style_ds.map(lambda x: normalize(x)).prefetch(buffer_size=AUTOTUNE).repeat()
+
+        self.content_iter = iter(self.content_ds)
+        self.style_iter = iter(self.style_ds)
 
         self.optimizer = K.optimizers.Adam(learning_rate=lr)
 
@@ -64,23 +67,25 @@ class Trainer():
         return content_loss + self.style_weight * style_loss
 
     def train(self):
-        for epoch in range(self.epochs):
-            print(f'\nStarting epoch {epoch}')
+        step = 0
+        while step < self.num_iter:
+            step += 1
+            content_batch = self.content_iter.get_next()
+            style_batch = self.style_iter.get_next()
 
-            for step, (content_batch, style_batch) in enumerate(zip(self.content_ds, self.style_ds)):
-                with tf.GradientTape() as tape:
-                    stylized_imgs, t = self.model(tf.stack([content_batch, style_batch]))
-                    loss = self.criterion(stylized_imgs, style_batch, t)
+            with tf.GradientTape() as tape:
+                stylized_imgs, t = self.model(tf.stack([content_batch, style_batch]))
+                loss = self.criterion(stylized_imgs, style_batch, t)
 
-                gradients = tape.gradient(loss, self.model.trainable_weights)
-                self.optimizer.apply_gradients(zip(gradients, self.model.trainable_weights))
+            gradients = tape.gradient(loss, self.model.trainable_weights)
+            self.optimizer.apply_gradients(zip(gradients, self.model.trainable_weights))
 
-                # log every 200 batches
-                if step % 200 == 0:
-                    print(f'Training loss (for one batch) at step {step}: {loss}')
-                    print(f'Seen so far: {(step+1)*self.batch_size} samples')
+            # log and save every 200 batches
+            if step % 200 == 0:
+                print(f'Training loss (for one batch) at step {step}: {loss}')
+                print(f'Seen so far: {(step+1)*self.batch_size} samples')
 
-            self.model.save_weights(f'./checkpoints/adain_e{epoch}.ckpt')
+                self.model.save_weights(f'./checkpoints/adain_e{step}.ckpt')
 
         print("Finished training...")
         self.model.save('adain.h5')
