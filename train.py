@@ -69,7 +69,6 @@ class Trainer():
     def train(self):
         step = 0
         while step < self.num_iter:
-            step += 1
             content_batch = self.content_iter.get_next()
             style_batch = self.style_iter.get_next()
 
@@ -86,6 +85,8 @@ class Trainer():
                 print(f'Seen so far: {(step+1)*self.batch_size} samples')
 
                 self.model.save_weights(f'./checkpoints/adain_e{step}.ckpt')
+            
+            step += 1
 
         print("Finished training...")
         self.model.save('adain.h5')
