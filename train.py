@@ -70,7 +70,12 @@ class Trainer():
         step = 0
         while step < self.num_iter:
             content_batch = self.content_iter.get_next()
+            if content_batch.shape[0] != self.batch_size:
+                content_batch = self.content_iter.get_next()
+
             style_batch = self.style_iter.get_next()
+            if style_batch.shape[0] != self.batch_size:
+                style_batch = self.style_iter.get_next()
 
             with tf.GradientTape() as tape:
                 stylized_imgs, t = self.model(dict(content_imgs=content_batch, style_imgs=style_batch))
