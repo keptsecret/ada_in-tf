@@ -20,8 +20,7 @@ class Trainer():
                                                 batch_size=batch_size,
                                                 image_size=image_size,
                                                 shuffle=True,
-                                                crop_to_aspect_ratio=True,
-                                                drop_remainder=True)
+                                                crop_to_aspect_ratio=True)
              
         self.style_ds = K.utils.image_dataset_from_directory(
                                                 style_dir,
@@ -29,8 +28,7 @@ class Trainer():
                                                 batch_size=batch_size,
                                                 image_size=image_size,
                                                 shuffle=True,
-                                                crop_to_aspect_ratio=True,
-                                                drop_remainder=True)
+                                                crop_to_aspect_ratio=True)
 
         # some preprocessing may be needed
         normalize = K.layers.Rescaling(1./255)
@@ -75,7 +73,7 @@ class Trainer():
             style_batch = self.style_iter.get_next()
 
             with tf.GradientTape() as tape:
-                stylized_imgs, t = self.model(tf.stack([content_batch, style_batch]))
+                stylized_imgs, t = self.model(dict(content_imgs=content_batch, style_imgs=style_batch))
                 loss = self.criterion(stylized_imgs, style_batch, t)
 
             gradients = tape.gradient(loss, self.model.trainable_weights)
@@ -87,8 +85,8 @@ class Trainer():
                 print(f'Seen so far: {(step+1)*self.batch_size} samples')
 
                 self.model.save_weights(f'./checkpoints/adain_e{step}.ckpt')
-            
+
             step += 1
 
         print("Finished training...")
-        self.model.save('adain.h5')
+        self.model.save('saved_model/adain_final')

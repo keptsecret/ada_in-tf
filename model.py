@@ -105,6 +105,10 @@ class Decoder(K.Model):
 
 class StyleNet(K.Model):
     def __init__(self):
+        """
+        When calling model on inputs
+        inputs: a dict with key-value pairs for content images and style images (+ optional alpha value)
+        """
         super().__init__()
 
         self.encoder = Encoder()
@@ -114,9 +118,14 @@ class StyleNet(K.Model):
     def encode(self, x, return_all=True):
         return self.encoder(x, return_all=return_all)
 
-    def call(self, inputs : tf.Tensor, alpha=1.0):
-        content_imgs = inputs[0]
-        style_imgs = inputs[1]
+    def call(self, inputs : dict):
+        content_imgs = inputs['content_imgs']
+        style_imgs = inputs['style_imgs']
+        if "alpha" in inputs:
+            alpha = inputs['alpha']
+        else:
+            alpha = 1.0
+
         content_feats = self.encoder(content_imgs)
         style_feats = self.encoder(style_imgs)
 
