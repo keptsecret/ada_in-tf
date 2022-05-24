@@ -15,7 +15,8 @@ class AdaIN():
         """
         feats: Features should be in shape N x C x W x H
         """
-        n, c, _, _ = feats.shape
+        n = tf.shape(feats)[0]
+        c = tf.shape(feats)[1]
         x = tf.reshape(feats, [n, c, -1])
         mean = tf.reshape(tf.reduce_mean(x, axis=-1), [n, c, 1, 1])
         std = tf.reshape(tf.reduce_mean(x, axis=-1), [n, c, 1, 1]) + eps
