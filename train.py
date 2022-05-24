@@ -21,7 +21,7 @@ class Trainer():
                                                 image_size=image_size,
                                                 shuffle=True,
                                                 crop_to_aspect_ratio=True)
-             
+
         self.style_ds = K.utils.image_dataset_from_directory(
                                                 style_dir,
                                                 labels=None,

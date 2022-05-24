@@ -3,7 +3,7 @@ import argparse
 from train import Trainer
 
 def train(content_dir, style_dir):
-    trainer = Trainer(content_dir, style_dir, batch_size=64)
+    trainer = Trainer(content_dir, style_dir, batch_size=64, lr=1e-5)
     trainer.train()
 
 if __name__ == "__main__":
