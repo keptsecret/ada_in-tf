@@ -122,6 +122,7 @@ class StyleNet(K.Model):
         self.decoder = Decoder()
 
     def encode(self, x, return_all=True):
+        x = tf.image.resize(x, self.up_size)
         return self.encoder(x, return_all=return_all)
 
     def call(self, inputs : dict):
