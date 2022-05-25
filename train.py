@@ -12,7 +12,7 @@ class Trainer():
         self.batch_size = batch_size
         self.style_weight = s_wt
 
-        image_size = (256, 256)
+        image_size = (1024, 1024)
 
         self.content_ds = K.utils.image_dataset_from_directory(
                                                 content_dir,

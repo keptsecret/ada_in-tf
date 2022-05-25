@@ -5,8 +5,10 @@ from PIL import Image
 
 from train import Trainer
 
+UP_SIZE = (1024, 1024)
+
 def train(content_dir, style_dir):
-    trainer = Trainer(content_dir, style_dir, batch_size=8, lr=1e-5)
+    trainer = Trainer(content_dir, style_dir, batch_size=64, lr=1e-4)
     trainer.train()
 
 def infer(content_dir, style_dir, model_path, alpha):
@@ -20,16 +22,20 @@ def infer(content_dir, style_dir, model_path, alpha):
     content_img = K.preprocessing.image.img_to_array(content_img)
     style_img = K.preprocessing.image.img_to_array(style_img)
 
-    assert min(content_img.shape[:2]) >= 64
-    assert min(style_img.shape[:2]) >= 64
-
     content_img = tf.convert_to_tensor(content_img)[tf.newaxis, :]
     style_img = tf.convert_to_tensor(style_img)[tf.newaxis, :]
+
+    w = tf.shape(content_img)[1]
+    h = tf.shape(content_img)[2]
+
+    content_img = tf.image.resize(content_img, UP_SIZE)
+    style_img = tf.image.resize(style_img, UP_SIZE)
 
     model = K.models.load_model(model_path)
     print(model.summary())
 
     stylized_img, _ = model(dict(content_imgs=content_img, style_imgs=style_img, alpha=alpha))
+    stylized_img = tf.image.resize(stylized_img, [w, h])
     K.preprocessing.image.save_img("image.png", stylized_img[0])
 
 if __name__ == "__main__":
