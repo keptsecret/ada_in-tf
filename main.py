@@ -8,7 +8,7 @@ from train import Trainer
 UP_SIZE = (1024, 1024)
 
 def train(content_dir, style_dir):
-    trainer = Trainer(content_dir, style_dir, batch_size=64, lr=1e-4)
+    trainer = Trainer(content_dir, style_dir, batch_size=64, num_iter=8e3, lr=1e-4)
     trainer.train()
 
 def infer(content_dir, style_dir, model_path, alpha):

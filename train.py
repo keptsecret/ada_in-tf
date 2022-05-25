@@ -92,4 +92,4 @@ class Trainer():
             step += 1
 
         print("Finished training...")
-        self.model.save_weights('saved_model/adain_test.h5')
+        self.model.save_weights('saved_model/adain_weights.h5')
