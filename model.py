@@ -41,8 +41,8 @@ class Encoder(K.Model):
         self.input_layer = K.layers.InputLayer(input_shape=[None, None, 3])
         self.block1 = K.Sequential(vgg.layers[:2])
         self.block2 = K.Sequential(vgg.layers[2:5])
-        self.block3 = K.Sequential(vgg.layers[5:10])
-        self.block4 = K.Sequential(vgg.layers[10:])
+        self.block3 = K.Sequential(vgg.layers[5:8])
+        self.block4 = K.Sequential(vgg.layers[8:13])
 
     def call(self, x, return_all=False):
         x = self.input_layer(x)
@@ -67,6 +67,8 @@ class Decoder(K.Model):
             K.layers.ReLU(),
             K.layers.Conv2D(256, 3, strides=1, padding='same'),
             K.layers.ReLU(),
+            K.layers.Conv2D(256, 3, strides=1, padding='same'),
+            K.layers.ReLU(),
             K.layers.Conv2D(128, 3, strides=1, padding='same'),
             K.layers.ReLU(),
             K.layers.UpSampling2D()
@@ -81,17 +83,8 @@ class Decoder(K.Model):
         ])
 
         self.block4 = K.Sequential([
-            K.layers.Conv2D(64, 3, strides=1, padding='same', input_shape=[None, None, 64]),
+            K.layers.Conv2D(64, 3, strides=1, padding='same', input_shape=[None, None, 32]),
             K.layers.ReLU(),
-            K.layers.Conv2D(32, 3, strides=1, padding='same'),
-            K.layers.ReLU(),
-            K.layers.UpSampling2D()
-        ])
-
-        self.final = K.Sequential([
-            K.layers.Conv2D(32, 3, strides=1, padding='same', input_shape=[None, None, 32]),
-            K.layers.ReLU(),
-            K.layers.UpSampling2D(),
             K.layers.Conv2D(3, 3, strides=1, padding='same')
         ])
 
@@ -99,8 +92,7 @@ class Decoder(K.Model):
         x = self.block1(x)
         x = self.block2(x)
         x = self.block3(x)
-        x = self.block4(x)
-        out = self.final(x)
+        out = self.block4(x)
         return out
 
 class StyleNet(K.Model):
