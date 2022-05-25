@@ -83,7 +83,7 @@ class Decoder(K.Model):
         ])
 
         self.block4 = K.Sequential([
-            K.layers.Conv2D(64, 3, strides=1, padding='same', input_shape=[None, None, 32]),
+            K.layers.Conv2D(64, 3, strides=1, padding='same', input_shape=[None, None, 64]),
             K.layers.ReLU(),
             K.layers.Conv2D(3, 3, strides=1, padding='same')
         ])
