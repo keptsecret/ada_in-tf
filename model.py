@@ -114,6 +114,8 @@ class StyleNet(K.Model):
         """
         super().__init__()
 
+        self.up_size = [1024, 1024]
+
         self.encoder = Encoder()
         self.adain = AdaIN()
         self.decoder = Decoder()
@@ -126,12 +128,20 @@ class StyleNet(K.Model):
         style_imgs = inputs['style_imgs']
         alpha = inputs['alpha']
 
+        w = tf.shape(content_imgs)[1]
+        h = tf.shape(content_imgs)[2]
+
+        content_imgs = tf.image.resize(content_imgs, self.up_size)
+        style_imgs = tf.image.resize(style_imgs, self.up_size)
+
         content_feats = self.encoder(content_imgs)
         style_feats = self.encoder(style_imgs)
 
-        t = self.adain(content_feats, style_feats)
+        t = self.adain(tf.transpose(content_feats, perm=[0,3,1,2]), tf.transpose(style_feats, perm=[0,3,1,2]))
+        t = tf.transpose(t, perm=[0,2,3,1])
         t = alpha * t + (1 - alpha) * content_feats
 
         out = self.decoder(t)
+        out = tf.image.resize(out, [w, h])
 
         return out, t

@@ -19,16 +19,14 @@ class Trainer():
                                                 labels=None,
                                                 batch_size=batch_size,
                                                 image_size=image_size,
-                                                shuffle=True,
-                                                crop_to_aspect_ratio=True)
+                                                shuffle=True)
 
         self.style_ds = K.utils.image_dataset_from_directory(
                                                 style_dir,
                                                 labels=None,
                                                 batch_size=batch_size,
                                                 image_size=image_size,
-                                                shuffle=True,
-                                                crop_to_aspect_ratio=True)
+                                                shuffle=True)
 
         # some preprocessing may be needed
         normalize = K.layers.Rescaling(1./255)
