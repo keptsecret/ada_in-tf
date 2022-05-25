@@ -75,8 +75,6 @@ class Decoder(K.Model):
         self.block3 = K.Sequential([
             K.layers.Conv2D(128, 3, strides=1, padding='same', input_shape=[None, None, 128]),
             K.layers.ReLU(),
-            K.layers.Conv2D(128, 3, strides=1, padding='same'),
-            K.layers.ReLU(),
             K.layers.Conv2D(64, 3, strides=1, padding='same'),
             K.layers.ReLU(),
             K.layers.UpSampling2D()
@@ -94,8 +92,6 @@ class Decoder(K.Model):
             K.layers.Conv2D(32, 3, strides=1, padding='same', input_shape=[None, None, 32]),
             K.layers.ReLU(),
             K.layers.UpSampling2D(),
-            K.layers.Conv2D(32, 3, strides=1, padding='same'),
-            K.layers.ReLU(),
             K.layers.Conv2D(3, 3, strides=1, padding='same')
         ])
 
