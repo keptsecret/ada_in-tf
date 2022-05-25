@@ -12,7 +12,7 @@ class Trainer():
         self.batch_size = batch_size
         self.style_weight = s_wt
 
-        image_size = (1024, 1024)
+        image_size = (256, 256)
 
         self.content_ds = K.utils.image_dataset_from_directory(
                                                 content_dir,
@@ -92,4 +92,4 @@ class Trainer():
             step += 1
 
         print("Finished training...")
-        self.model.save('saved_model/adain_test', save_format='tf')
+        self.model.save_weights('saved_model/adain_test.h5')
