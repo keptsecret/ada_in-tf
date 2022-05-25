@@ -94,4 +94,4 @@ class Trainer():
             step += 1
 
         print("Finished training...")
-        self.model.save('saved_model/adain_final')
+        self.model.save('saved_model/adain_test', save_format='tf')
