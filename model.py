@@ -9,7 +9,8 @@ class AdaIN():
         c_mean, c_std = self._compute_mean_std(content_feats)
         s_mean, s_std = self._compute_mean_std(style_feats)
 
-        return (s_std * (content_feats - c_mean) / c_std) + s_mean
+        t = (s_std * (content_feats - c_mean) / c_std) + s_mean
+        return tf.transpose(t, perm=[0,2,3,1])
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
         """
@@ -138,7 +139,6 @@ class StyleNet(K.Model):
         style_feats = self.encoder(style_imgs)
 
         t = self.adain(tf.transpose(content_feats, perm=[0,3,1,2]), tf.transpose(style_feats, perm=[0,3,1,2]))
-        t = tf.transpose(t, perm=[0,2,3,1])
         t = alpha * t + (1 - alpha) * content_feats
 
         out = self.decoder(t)

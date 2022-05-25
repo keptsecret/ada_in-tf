@@ -6,7 +6,7 @@ from PIL import Image
 from train import Trainer
 
 def train(content_dir, style_dir):
-    trainer = Trainer(content_dir, style_dir, batch_size=64, lr=1e-5)
+    trainer = Trainer(content_dir, style_dir, batch_size=8, lr=1e-5)
     trainer.train()
 
 def infer(content_dir, style_dir, model_path, alpha):
@@ -15,7 +15,8 @@ def infer(content_dir, style_dir, model_path, alpha):
         style_img = Image.open(style_dir)
     except:
         print("Error opening images for inference -- must be path to image")
-    
+        exit(1)
+
     content_img = K.preprocessing.image.img_to_array(content_img)
     style_img = K.preprocessing.image.img_to_array(style_img)
 
@@ -24,11 +25,11 @@ def infer(content_dir, style_dir, model_path, alpha):
 
     content_img = tf.convert_to_tensor(content_img)[tf.newaxis, :]
     style_img = tf.convert_to_tensor(style_img)[tf.newaxis, :]
-    
+
     model = K.models.load_model(model_path)
     print(model.summary())
 
-    stylized_img, _ = model(dict(content_imgs=content_img, style_imgs=style_img, alpha=1.0))
+    stylized_img, _ = model(dict(content_imgs=content_img, style_imgs=style_img, alpha=alpha))
     K.preprocessing.image.save_img("image.png", stylized_img[0])
 
 if __name__ == "__main__":
