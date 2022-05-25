@@ -78,7 +78,7 @@ class Trainer():
                 style_batch = self.style_iter.get_next()
 
             with tf.GradientTape() as tape:
-                stylized_imgs, t = self.model(dict(content_imgs=content_batch, style_imgs=style_batch))
+                stylized_imgs, t = self.model(dict(content_imgs=content_batch, style_imgs=style_batch, alpha=1.0))
                 loss = self.criterion(stylized_imgs, style_batch, t)
 
             gradients = tape.gradient(loss, self.model.trainable_weights)

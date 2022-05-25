@@ -37,12 +37,14 @@ class Encoder(K.Model):
         for l in vgg.layers:
             l.trainable = trainable
 
+        self.input = K.Input(shape=[None, None, 3])
         self.block1 = K.Sequential(vgg.layers[:2])
         self.block2 = K.Sequential(vgg.layers[2:5])
         self.block3 = K.Sequential(vgg.layers[5:10])
         self.block4 = K.Sequential(vgg.layers[10:])
 
     def call(self, x, return_all=False):
+        x = self.input(x)
         x1 = self.block1(x)
         x2 = self.block2(x1)
         x3 = self.block3(x2)
@@ -54,13 +56,13 @@ class Decoder(K.Model):
         super().__init__()
 
         self.block1 = K.Sequential([
-            K.layers.Conv2D(256, 3, strides=1, padding='same'),
+            K.layers.Conv2D(256, 3, strides=1, padding='same', input_shape=[None, None, 3]),
             K.layers.ReLU(),
             K.layers.UpSampling2D()
         ])
 
         self.block2 = K.Sequential([
-            K.layers.Conv2D(256, 3, strides=1, padding='same'),
+            K.layers.Conv2D(256, 3, strides=1, padding='same', input_shape=[None, None, 3]),
             K.layers.ReLU(),
             K.layers.Conv2D(256, 3, strides=1, padding='same'),
             K.layers.ReLU(),
@@ -70,7 +72,7 @@ class Decoder(K.Model):
         ])
 
         self.block3 = K.Sequential([
-            K.layers.Conv2D(128, 3, strides=1, padding='same'),
+            K.layers.Conv2D(128, 3, strides=1, padding='same', input_shape=[None, None, 3]),
             K.layers.ReLU(),
             K.layers.Conv2D(128, 3, strides=1, padding='same'),
             K.layers.ReLU(),
@@ -80,7 +82,7 @@ class Decoder(K.Model):
         ])
 
         self.block4 = K.Sequential([
-            K.layers.Conv2D(64, 3, strides=1, padding='same'),
+            K.layers.Conv2D(64, 3, strides=1, padding='same', input_shape=[None, None, 3]),
             K.layers.ReLU(),
             K.layers.Conv2D(32, 3, strides=1, padding='same'),
             K.layers.ReLU(),
@@ -88,7 +90,7 @@ class Decoder(K.Model):
         ])
 
         self.final = K.Sequential([
-            K.layers.Conv2D(32, 3, strides=1, padding='same'),
+            K.layers.Conv2D(32, 3, strides=1, padding='same', input_shape=[None, None, 3]),
             K.layers.ReLU(),
             K.layers.UpSampling2D(),
             K.layers.Conv2D(32, 3, strides=1, padding='same'),
@@ -122,10 +124,7 @@ class StyleNet(K.Model):
     def call(self, inputs : dict):
         content_imgs = inputs['content_imgs']
         style_imgs = inputs['style_imgs']
-        if "alpha" in inputs:
-            alpha = inputs['alpha']
-        else:
-            alpha = 1.0
+        alpha = inputs['alpha']
 
         content_feats = self.encoder(content_imgs)
         style_feats = self.encoder(style_imgs)
