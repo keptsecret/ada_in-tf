@@ -9,7 +9,7 @@ from model import StyleNet
 UP_SIZE = (1024, 1024)
 
 def train(content_dir, style_dir):
-    trainer = Trainer(content_dir, style_dir, batch_size=64, num_iter=15000, lr=5e-5)
+    trainer = Trainer(content_dir, style_dir, batch_size=64, num_iter=16000, lr=5e-5)
     trainer.train()
 
 def infer(content_dir, style_dir, model_path, alpha):
