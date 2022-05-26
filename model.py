@@ -56,36 +56,47 @@ class Decoder(K.Model):
     def __init__(self):
         super().__init__()
 
+        reflect_padding = K.layers.Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))
+
         self.block1 = K.Sequential([
-            K.layers.Conv2D(256, 3, strides=1, padding='same', input_shape=[None, None, 512]),
+            K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 512]),
+            reflect_padding,
             K.layers.ReLU(),
             K.layers.UpSampling2D()
         ])
 
         self.block2 = K.Sequential([
-            K.layers.Conv2D(256, 3, strides=1, padding='same', input_shape=[None, None, 256]),
+            K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 256]),
+            reflect_padding,
             K.layers.ReLU(),
-            K.layers.Conv2D(256, 3, strides=1, padding='same'),
+            K.layers.Conv2D(256, 3, strides=1, padding='valid'),
+            reflect_padding,
             K.layers.ReLU(),
-            K.layers.Conv2D(256, 3, strides=1, padding='same'),
+            K.layers.Conv2D(256, 3, strides=1, padding='valid'),
+            reflect_padding,
             K.layers.ReLU(),
-            K.layers.Conv2D(128, 3, strides=1, padding='same'),
+            K.layers.Conv2D(128, 3, strides=1, padding='valid'),
+            reflect_padding,
             K.layers.ReLU(),
             K.layers.UpSampling2D()
         ])
 
         self.block3 = K.Sequential([
-            K.layers.Conv2D(128, 3, strides=1, padding='same', input_shape=[None, None, 128]),
+            K.layers.Conv2D(128, 3, strides=1, padding='valid', input_shape=[None, None, 128]),
+            reflect_padding,
             K.layers.ReLU(),
-            K.layers.Conv2D(64, 3, strides=1, padding='same'),
+            K.layers.Conv2D(64, 3, strides=1, padding='valid'),
+            reflect_padding,
             K.layers.ReLU(),
             K.layers.UpSampling2D()
         ])
 
         self.block4 = K.Sequential([
-            K.layers.Conv2D(64, 3, strides=1, padding='same', input_shape=[None, None, 64]),
+            K.layers.Conv2D(64, 3, strides=1, padding='valid', input_shape=[None, None, 64]),
+            reflect_padding,
             K.layers.ReLU(),
-            K.layers.Conv2D(3, 3, strides=1, padding='same')
+            K.layers.Conv2D(3, 3, strides=1, padding='valid'),
+            reflect_padding,
         ])
 
     def call(self, x):

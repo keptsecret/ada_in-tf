@@ -33,7 +33,7 @@ def infer(content_dir, style_dir, model_path, alpha):
     style_img = tf.image.resize(style_img, UP_SIZE)
 
     model = StyleNet()
-    r_img = tf.random.normal(content_img.shape)
+    r_img = tf.ones(content_img.shape)
     _, _ = model(dict(content_imgs=r_img, style_imgs=r_img, alpha=alpha))
     model.load_weights(model_path)
     print(model.summary())
