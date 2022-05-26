@@ -58,8 +58,8 @@ class Trainer():
 
         style_loss = 0
         for f1, f2 in zip(stylized_feats, style_feats):
-            m1, s1 = self._compute_mean_std(f1)
-            m2, s2 = self._compute_mean_std(f2)
+            m1, s1 = self._compute_mean_std(tf.transpose(f1, perm=[0,3,1,2]))
+            m2, s2 = self._compute_mean_std(tf.transpose(f2, perm=[0,3,1,2]))
             style_loss += self.mse_loss(m1, m2) + self.mse_loss(s1, s2)
 
         return content_loss + self.style_weight * style_loss
