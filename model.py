@@ -19,8 +19,8 @@ class AdaIN():
         n = tf.shape(feats)[0]
         c = tf.shape(feats)[1]
         x = tf.reshape(feats, [n, c, -1])
-        mean = tf.reshape(tf.reduce_mean(x, axis=-1), [n, c, 1, 1])
-        std = tf.reshape(tf.reduce_mean(x, axis=-1), [n, c, 1, 1]) + eps
+        mean = tf.reshape(tf.math.reduce_mean(x, axis=-1), [n, c, 1, 1])
+        std = tf.reshape(tf.math.reduce_std(x, axis=-1), [n, c, 1, 1]) + eps
         return mean, std
 
 class Encoder(K.Model):
@@ -121,7 +121,7 @@ class StyleNet(K.Model):
         """
         super().__init__()
 
-        self.encoder = Encoder(trainable_layers=[4])
+        self.encoder = Encoder()
         self.adain = AdaIN()
         self.decoder = Decoder()
 

@@ -45,8 +45,8 @@ class Trainer():
         """
         n, c, _, _ = feats.shape
         x = tf.reshape(feats, [n, c, -1])
-        mean = tf.reshape(tf.reduce_mean(x, axis=-1), [n, c, 1, 1])
-        std = tf.reshape(tf.reduce_mean(x, axis=-1), [n, c, 1, 1]) + eps
+        mean = tf.reshape(tf.math.reduce_mean(x, axis=-1), [n, c, 1, 1])
+        std = tf.reshape(tf.math.reduce_std(x, axis=-1), [n, c, 1, 1]) + eps
         return mean, std
 
     def criterion(self, stylized_img : tf.Tensor, style_img : tf.Tensor, t : tf.Tensor):
