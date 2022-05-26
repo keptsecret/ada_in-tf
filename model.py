@@ -44,7 +44,7 @@ class Encoder(K.Model):
         blocks = [self.block1, self.block2, self.block3, self.block4]
 
         for i, b in enumerate(blocks):
-            if i in trainable_layers:
+            if i + 1 in trainable_layers:
                 for l in b.layers:
                     l.trainable = True
             else:
