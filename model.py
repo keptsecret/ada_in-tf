@@ -24,7 +24,7 @@ class AdaIN():
         return mean, std
 
 class Encoder(K.Model):
-    def __init__(self, pretrained=True, trainable=False):
+    def __init__(self, pretrained=True, trainable_layers=list()):
         """
         Uses VGG19
         """
@@ -35,14 +35,21 @@ class Encoder(K.Model):
             w = None
         vgg = K.applications.VGG19(include_top=False, weights=w)
 
-        for l in vgg.layers:
-            l.trainable = trainable
-
         self.input_layer = K.layers.InputLayer(input_shape=[None, None, 3])
         self.block1 = K.Sequential(vgg.layers[:2])
         self.block2 = K.Sequential(vgg.layers[2:5])
         self.block3 = K.Sequential(vgg.layers[5:8])
         self.block4 = K.Sequential(vgg.layers[8:13])
+
+        blocks = [self.block1, self.block2, self.block3, self.block4]
+
+        for i, b in enumerate(blocks):
+            if i in trainable_layers:
+                for l in b.layers:
+                    l.trainable = True
+            else:
+                for l in b.layers:
+                    l.trainable = False
 
     def call(self, x, return_all=False):
         x = self.input_layer(x)
@@ -114,7 +121,7 @@ class StyleNet(K.Model):
         """
         super().__init__()
 
-        self.encoder = Encoder()
+        self.encoder = Encoder(trainable_layers=[4])
         self.adain = AdaIN()
         self.decoder = Decoder()
 
