@@ -4,23 +4,19 @@ import tensorflow.keras as K
 class AdaIN():
     def __call__(self, content_feats : tf.Tensor, style_feats : tf.Tensor):
         """
-        Feature tensors should be in shape N x C x W x H
+        Feature tensors should be in shape N x H x W x C
         """
         c_mean, c_std = self._compute_mean_std(content_feats)
         s_mean, s_std = self._compute_mean_std(style_feats)
 
-        t = (s_std * (content_feats - c_mean) / c_std) + s_mean
-        return tf.transpose(t, perm=[0,2,3,1])
+        return (s_std * (content_feats - c_mean) / c_std) + s_mean
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
         """
-        feats: Features should be in shape N x C x W x H
+        feats: Features should be in shape N x H x W x C
         """
-        n = tf.shape(feats)[0]
-        c = tf.shape(feats)[1]
-        x = tf.reshape(feats, [n, c, -1])
-        mean = tf.reshape(tf.math.reduce_mean(x, axis=-1), [n, c, 1, 1])
-        std = tf.reshape(tf.math.reduce_std(x, axis=-1), [n, c, 1, 1]) + eps
+        mean = tf.math.reduce_mean(feats, axis=[1,2], keepdims=True)
+        std = tf.math.reduce_std(feats, axis=[1,2], keepdims=True) + eps
         return mean, std
 
 class Encoder(K.Model):
@@ -139,7 +135,7 @@ class StyleNet(K.Model):
         content_feats = self.encode(content_imgs)
         style_feats = self.encode(style_imgs)
 
-        t = self.adain(tf.transpose(content_feats, perm=[0,3,1,2]), tf.transpose(style_feats, perm=[0,3,1,2]))
+        t = self.adain(content_feats, style_feats)
         t = alpha * t + (1 - alpha) * content_feats
 
         out = self.decoder(t)

@@ -41,12 +41,10 @@ class Trainer():
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
         """
-        feats: Features should be in shape N x C x W x H
+        feats: Features should be in shape N x H x W x C
         """
-        n, c, _, _ = feats.shape
-        x = tf.reshape(feats, [n, c, -1])
-        mean = tf.reshape(tf.math.reduce_mean(x, axis=-1), [n, c, 1, 1])
-        std = tf.reshape(tf.math.reduce_std(x, axis=-1), [n, c, 1, 1]) + eps
+        mean = tf.math.reduce_mean(feats, axis=[1,2], keepdims=True)
+        std = tf.math.reduce_std(feats, axis=[1,2], keepdims=True) + eps
         return mean, std
 
     def criterion(self, stylized_img : tf.Tensor, style_img : tf.Tensor, t : tf.Tensor):
@@ -58,8 +56,8 @@ class Trainer():
 
         style_loss = 0
         for f1, f2 in zip(stylized_feats, style_feats):
-            m1, s1 = self._compute_mean_std(tf.transpose(f1, perm=[0,3,1,2]))
-            m2, s2 = self._compute_mean_std(tf.transpose(f2, perm=[0,3,1,2]))
+            m1, s1 = self._compute_mean_std(f1)
+            m2, s2 = self._compute_mean_std(f2)
             style_loss += self.mse_loss(m1, m2) + self.mse_loss(s1, s2)
 
         return content_loss + self.style_weight * style_loss
