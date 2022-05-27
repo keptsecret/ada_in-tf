@@ -50,9 +50,9 @@ class Trainer():
         return mean, std
 
     def criterion(self, stylized_img : tf.Tensor, style_img : tf.Tensor, t : tf.Tensor):
-        stylized_content_feats = self.model.encode(stylized_img, return_all=False)
-        stylized_feats = self.model.encode(stylized_img)
-        style_feats = self.model.encode(style_img)
+        stylized_content_feats = self.model.encode(stylized_img)
+        stylized_feats = self.model.encode(stylized_img, return_all=True)
+        style_feats = self.model.encode(style_img, return_all=True)
 
         content_loss = self.mse_loss(t, stylized_content_feats)
 

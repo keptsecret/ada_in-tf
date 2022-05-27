@@ -51,7 +51,10 @@ class Encoder(K.Model):
                 for l in b.layers:
                     l.trainable = False
 
-    def call(self, x, return_all=False):
+    def call(self, inputs):
+        x = inputs['x']
+        return_all = inputs['return_all']
+
         x = self.input_layer(x)
         x1 = self.block1(x)
         x2 = self.block2(x1)
@@ -125,16 +128,16 @@ class StyleNet(K.Model):
         self.adain = AdaIN()
         self.decoder = Decoder()
 
-    def encode(self, x, return_all=True):
-        return self.encoder(x, return_all=return_all)
+    def encode(self, x, return_all=False):
+        return self.encoder(dict(x=x, return_all=return_all))
 
     def call(self, inputs : dict):
         content_imgs = inputs['content_imgs']
         style_imgs = inputs['style_imgs']
         alpha = inputs['alpha']
 
-        content_feats = self.encoder(content_imgs)
-        style_feats = self.encoder(style_imgs)
+        content_feats = self.encode(content_imgs)
+        style_feats = self.encode(style_imgs)
 
         t = self.adain(tf.transpose(content_feats, perm=[0,3,1,2]), tf.transpose(style_feats, perm=[0,3,1,2]))
         t = alpha * t + (1 - alpha) * content_feats
