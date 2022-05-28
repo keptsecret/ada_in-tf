@@ -48,8 +48,8 @@ class Trainer():
 
         lr_schedule = K.optimizers.schedules.ExponentialDecay(
                                     initial_learning_rate=lr,
-                                    decay_steps=num_iter/5,
-                                    decay_rate=0.9)
+                                    decay_steps=num_iter//10,
+                                    decay_rate=0.5)
         self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule)
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
