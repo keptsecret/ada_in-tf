@@ -39,7 +39,7 @@ def infer(content_dir, style_dir, model_path, alpha):
     print(model.summary())
 
     stylized_img, _ = model(dict(content_imgs=content_img, style_imgs=style_img, alpha=alpha))
-    stylized_img = denorm(tf.image.resize(stylized_img, [w, h]), 0, 1)
+    stylized_img = denorm(tf.image.resize(stylized_img, [w, h]))
     K.utils.save_img("image.png", stylized_img[0], scale=True)
 
 if __name__ == "__main__":

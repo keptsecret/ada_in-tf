@@ -9,9 +9,10 @@ def preprocess(x):
     return normalize(rescale(x))
 
 def denorm(x):
-    mean = tf.constant([0.485, 0.456, 0.406]).reshape(x.shape[0], 1, 1, x.shape[-1])
-    std = tf.constant([0.229, 0.224, 0.225]).reshape(x.shape[0], 1, 1, x.shape[-1])
+    mean = tf.reshape(tf.convert_to_tensor([0.485, 0.456, 0.406]), [x.shape[0], 1, 1, x.shape[-1]])
+    std = tf.reshape(tf.convert_to_tensor([0.229, 0.224, 0.225]), [x.shape[0], 1, 1, x.shape[-1]])
     x = tf.clip_by_value(x * std + mean, 0, 1)
+    return x
 
 class Trainer():
     def __init__(self, content_dir, style_dir, batch_size=32, num_iter=5e3, lr=1e-3, s_wt=10.0):
