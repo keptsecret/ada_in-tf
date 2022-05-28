@@ -12,7 +12,7 @@ class Trainer():
         self.batch_size = batch_size
         self.style_weight = s_wt
 
-        image_size = (256, 256)
+        image_size = (224, 224)
 
         self.content_ds = K.utils.image_dataset_from_directory(
                                                 content_dir,
@@ -37,12 +37,14 @@ class Trainer():
         self.content_iter = iter(self.content_ds)
         self.style_iter = iter(self.style_ds)
 
-        self.optimizer = K.optimizers.Adam(learning_rate=lr)
+        lr_schedule = K.optimizers.schedules.ExponentialDecay(initial_learning_rate=lr, decay_steps=num_iter/5, decay_rate=0.8)
+        self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule)
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
         """
         feats: Features should be in shape N x H x W x C
         """
+        feats = tf.clip_by_value(feats, 1e-12, 1e3)
         mean = tf.math.reduce_mean(feats, axis=[1,2], keepdims=True)
         std = tf.math.reduce_std(feats, axis=[1,2], keepdims=True) + eps
         return mean, std

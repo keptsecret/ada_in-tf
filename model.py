@@ -15,6 +15,7 @@ class AdaIN():
         """
         feats: Features should be in shape N x H x W x C
         """
+        feats = tf.clip_by_value(feats, 1e-12, 1e3)
         mean = tf.math.reduce_mean(feats, axis=[1,2], keepdims=True)
         std = tf.math.reduce_std(feats, axis=[1,2], keepdims=True) + eps
         return mean, std
