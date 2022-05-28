@@ -66,44 +66,44 @@ class Decoder(K.Model):
         reflect_padding = K.layers.Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))
 
         self.block1 = K.Sequential([
-            K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 512]),
             reflect_padding,
+            K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 512]),
             K.layers.ReLU(),
             K.layers.UpSampling2D()
         ])
 
         self.block2 = K.Sequential([
+            reflect_padding,
             K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 256]),
-            reflect_padding,
             K.layers.ReLU(),
+            reflect_padding,
             K.layers.Conv2D(256, 3, strides=1, padding='valid'),
-            reflect_padding,
             K.layers.ReLU(),
+            reflect_padding,
             K.layers.Conv2D(256, 3, strides=1, padding='valid'),
-            reflect_padding,
             K.layers.ReLU(),
+            reflect_padding,
             K.layers.Conv2D(128, 3, strides=1, padding='valid'),
-            reflect_padding,
             K.layers.ReLU(),
             K.layers.UpSampling2D()
         ])
 
         self.block3 = K.Sequential([
+            reflect_padding,
             K.layers.Conv2D(128, 3, strides=1, padding='valid', input_shape=[None, None, 128]),
-            reflect_padding,
             K.layers.ReLU(),
-            K.layers.Conv2D(64, 3, strides=1, padding='valid'),
             reflect_padding,
+            K.layers.Conv2D(64, 3, strides=1, padding='valid'),
             K.layers.ReLU(),
             K.layers.UpSampling2D()
         ])
 
         self.block4 = K.Sequential([
+            reflect_padding,
             K.layers.Conv2D(64, 3, strides=1, padding='valid', input_shape=[None, None, 64]),
-            reflect_padding,
             K.layers.ReLU(),
-            K.layers.Conv2D(3, 3, strides=1, padding='valid'),
             reflect_padding,
+            K.layers.Conv2D(3, 3, strides=1, padding='valid')
         ])
 
     def call(self, x):
