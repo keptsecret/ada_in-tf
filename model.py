@@ -66,14 +66,13 @@ class Decoder(K.Model):
         reflect_padding = K.layers.Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))
 
         self.block1 = K.Sequential([
-            reflect_padding,
             K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 512]),
             K.layers.ReLU(),
-            K.layers.UpSampling2D()
+            K.layers.UpSampling2D(),
+            reflect_padding
         ])
 
         self.block2 = K.Sequential([
-            reflect_padding,
             K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 256]),
             K.layers.ReLU(),
             reflect_padding,
@@ -85,25 +84,26 @@ class Decoder(K.Model):
             reflect_padding,
             K.layers.Conv2D(128, 3, strides=1, padding='valid'),
             K.layers.ReLU(),
-            K.layers.UpSampling2D()
+            K.layers.UpSampling2D(),
+            reflect_padding
         ])
 
         self.block3 = K.Sequential([
-            reflect_padding,
             K.layers.Conv2D(128, 3, strides=1, padding='valid', input_shape=[None, None, 128]),
             K.layers.ReLU(),
             reflect_padding,
             K.layers.Conv2D(64, 3, strides=1, padding='valid'),
             K.layers.ReLU(),
-            K.layers.UpSampling2D()
+            K.layers.UpSampling2D(),
+            reflect_padding,
         ])
 
         self.block4 = K.Sequential([
-            reflect_padding,
             K.layers.Conv2D(64, 3, strides=1, padding='valid', input_shape=[None, None, 64]),
             K.layers.ReLU(),
             reflect_padding,
-            K.layers.Conv2D(3, 3, strides=1, padding='valid')
+            K.layers.Conv2D(3, 3, strides=1, padding='valid'),
+            reflect_padding
         ])
 
     def call(self, x):
