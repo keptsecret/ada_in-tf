@@ -3,13 +3,13 @@ import tensorflow as tf
 import tensorflow.keras as K
 from PIL import Image
 
-from train import Trainer
+from train import Trainer, preprocess, denorm
 from model import StyleNet
 
 UP_SIZE = (1024, 1024)
 
 def train(content_dir, style_dir):
-    trainer = Trainer(content_dir, style_dir, batch_size=64, num_iter=8e3, lr=1e-4)
+    trainer = Trainer(content_dir, style_dir, batch_size=64, num_iter=1e4, lr=1e-4)
     trainer.train()
 
 def infer(content_dir, style_dir, model_path, alpha):
@@ -23,8 +23,8 @@ def infer(content_dir, style_dir, model_path, alpha):
     content_img = K.preprocessing.image.img_to_array(content_img)
     style_img = K.preprocessing.image.img_to_array(style_img)
 
-    content_img = tf.convert_to_tensor(content_img)[tf.newaxis, :]
-    style_img = tf.convert_to_tensor(style_img)[tf.newaxis, :]
+    content_img = preprocess(tf.convert_to_tensor(content_img)[tf.newaxis, :])
+    style_img = preprocess(tf.convert_to_tensor(style_img)[tf.newaxis, :])
 
     w = tf.shape(content_img)[1]
     h = tf.shape(content_img)[2]
@@ -39,7 +39,7 @@ def infer(content_dir, style_dir, model_path, alpha):
     print(model.summary())
 
     stylized_img, _ = model(dict(content_imgs=content_img, style_imgs=style_img, alpha=alpha))
-    stylized_img = tf.image.resize(stylized_img, [w, h])
+    stylized_img = denorm(tf.image.resize(stylized_img, [w, h]), 0, 1)
     K.utils.save_img("image.png", stylized_img[0], scale=True)
 
 if __name__ == "__main__":

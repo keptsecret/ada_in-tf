@@ -3,6 +3,16 @@ import tensorflow.keras as K
 
 from model import StyleNet
 
+def preprocess(x):
+    rescale = K.layers.Rescaling(1./255)
+    normalize = K.layers.Normalization(axis=-1, mean=[0.485, 0.456, 0.406], variance=[0.052441, 0.050176, 0.050625])
+    return normalize(rescale(x))
+
+def denorm(x):
+    mean = tf.constant([0.485, 0.456, 0.406]).reshape(x.shape[0], 1, 1, x.shape[-1])
+    std = tf.constant([0.229, 0.224, 0.225]).reshape(x.shape[0], 1, 1, x.shape[-1])
+    x = tf.clip_by_value(x * std + mean, 0, 1)
+
 class Trainer():
     def __init__(self, content_dir, style_dir, batch_size=32, num_iter=5e3, lr=1e-3, s_wt=10.0):
         self.model = StyleNet()
@@ -29,15 +39,17 @@ class Trainer():
                                                 shuffle=True)
 
         # some preprocessing may be needed
-        normalize = K.layers.Rescaling(1./255)
         AUTOTUNE = tf.data.AUTOTUNE
-        self.content_ds = self.content_ds.map(lambda x: normalize(x)).prefetch(buffer_size=AUTOTUNE).repeat()
-        self.style_ds = self.style_ds.map(lambda x: normalize(x)).prefetch(buffer_size=AUTOTUNE).repeat()
+        self.content_ds = self.content_ds.map(preprocess).prefetch(buffer_size=AUTOTUNE).repeat()
+        self.style_ds = self.style_ds.map(preprocess).prefetch(buffer_size=AUTOTUNE).repeat()
 
         self.content_iter = iter(self.content_ds)
         self.style_iter = iter(self.style_ds)
 
-        lr_schedule = K.optimizers.schedules.ExponentialDecay(initial_learning_rate=lr, decay_steps=num_iter/5, decay_rate=0.8)
+        lr_schedule = K.optimizers.schedules.ExponentialDecay(
+                                    initial_learning_rate=lr,
+                                    decay_steps=num_iter/5,
+                                    decay_rate=0.9)
         self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule)
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
