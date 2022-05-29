@@ -9,7 +9,7 @@ from model import StyleNet
 UP_SIZE = (1024, 1024)
 
 def train(content_dir, style_dir):
-    trainer = Trainer(content_dir, style_dir, batch_size=32, num_iter=1e4, lr=5e-4)
+    trainer = Trainer(content_dir, style_dir, batch_size=32, num_iter=1e4, lr=1e-4)
     trainer.train()
 
 def infer(content_dir, style_dir, model_path, alpha):
@@ -23,8 +23,8 @@ def infer(content_dir, style_dir, model_path, alpha):
     content_img = K.preprocessing.image.img_to_array(content_img)
     style_img = K.preprocessing.image.img_to_array(style_img)
 
-    content_img = preprocess(tf.convert_to_tensor(content_img)[tf.newaxis, :])
-    style_img = preprocess(tf.convert_to_tensor(style_img)[tf.newaxis, :])
+    content_img, c_mean, c_std = preprocess(tf.convert_to_tensor(content_img)[tf.newaxis, :], return_mean_std=True)
+    style_img, s_mean, s_std = preprocess(tf.convert_to_tensor(style_img)[tf.newaxis, :], return_mean_std=True)
 
     w = tf.shape(content_img)[1]
     h = tf.shape(content_img)[2]
@@ -38,8 +38,10 @@ def infer(content_dir, style_dir, model_path, alpha):
     model.load_weights(model_path)
     print(model.summary())
 
+    f_mean = (1-alpha) * c_mean + alpha * s_mean
+    f_std = (1-alpha) * c_std + alpha * s_std
     stylized_img, _ = model(dict(content_imgs=content_img, style_imgs=style_img, alpha=alpha))
-    stylized_img = denorm(tf.image.resize(stylized_img, [w, h]))
+    stylized_img = denorm(tf.image.resize(stylized_img, [w, h]), f_mean, f_std)
     K.utils.save_img("image.png", stylized_img[0], scale=True)
 
 if __name__ == "__main__":

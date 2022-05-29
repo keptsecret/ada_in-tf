@@ -1,16 +1,22 @@
+from statistics import variance
 import tensorflow as tf
 import tensorflow.keras as K
 
 from model import StyleNet
 
-def preprocess(x):
+def preprocess(x, return_mean_std=False):
     rescale = K.layers.Rescaling(1./255)
-    normalize = K.layers.Normalization(axis=-1, mean=[0.485, 0.456, 0.406], variance=[0.052441, 0.050176, 0.050625])
-    return normalize(rescale(x))
 
-def denorm(x):
-    mean = tf.reshape(tf.convert_to_tensor([0.485, 0.456, 0.406]), [x.shape[0], 1, 1, x.shape[-1]])
-    std = tf.reshape(tf.convert_to_tensor([0.229, 0.224, 0.225]), [x.shape[0], 1, 1, x.shape[-1]])
+    x = rescale(x)
+    mean = tf.math.reduce_mean(x, axis=[1,2])
+    std = tf.math.reduce_std(x, axis=[1,2])
+    variance = tf.pow(std, 2)
+    
+    normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
+    x = normalize(x)
+    return (x, mean, std) if return_mean_std else x
+
+def denorm(x, mean, std):
     x = tf.clip_by_value(x * std + mean, 0, 1)
     return x
 
@@ -49,7 +55,7 @@ class Trainer():
 
         lr_schedule = K.optimizers.schedules.ExponentialDecay(
                                     initial_learning_rate=lr,
-                                    decay_steps=num_iter//10,
+                                    decay_steps=num_iter//5,
                                     decay_rate=0.5)
         self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule)
 
