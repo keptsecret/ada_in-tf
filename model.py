@@ -64,43 +64,44 @@ class Decoder(K.Model):
         super().__init__()
 
         self.reflect_padding = K.layers.Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))
+        self.upsample = K.layers.UpSampling2D(interpolation='bilinear')
 
         self.block1 = K.Sequential([
             K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 512]),
-            K.layers.ReLU(),
-            K.layers.UpSampling2D(),
+            K.layers.LeakyReLU(0.1),
+            self.upsample,
             self.reflect_padding
         ])
 
         self.block2 = K.Sequential([
             K.layers.Conv2D(256, 3, strides=1, padding='valid', input_shape=[None, None, 256]),
-            K.layers.ReLU(),
+            K.layers.LeakyReLU(0.1),
             self.reflect_padding,
             K.layers.Conv2D(256, 3, strides=1, padding='valid'),
-            K.layers.ReLU(),
+            K.layers.LeakyReLU(0.1),
             self.reflect_padding,
             K.layers.Conv2D(256, 3, strides=1, padding='valid'),
-            K.layers.ReLU(),
+            K.layers.LeakyReLU(0.1),
             self.reflect_padding,
             K.layers.Conv2D(128, 3, strides=1, padding='valid'),
-            K.layers.ReLU(),
-            K.layers.UpSampling2D(),
+            K.layers.LeakyReLU(0.1),
+            self.upsample,
             self.reflect_padding
         ])
 
         self.block3 = K.Sequential([
             K.layers.Conv2D(128, 3, strides=1, padding='valid', input_shape=[None, None, 128]),
-            K.layers.ReLU(),
+            K.layers.LeakyReLU(0.1),
             self.reflect_padding,
             K.layers.Conv2D(64, 3, strides=1, padding='valid'),
-            K.layers.ReLU(),
-            K.layers.UpSampling2D(),
+            K.layers.LeakyReLU(0.1),
+            self.upsample,
             self.reflect_padding,
         ])
 
         self.block4 = K.Sequential([
             K.layers.Conv2D(64, 3, strides=1, padding='valid', input_shape=[None, None, 64]),
-            K.layers.ReLU(),
+            K.layers.LeakyReLU(0.1),
             self.reflect_padding,
             K.layers.Conv2D(3, 3, strides=1, padding='valid'),
             self.reflect_padding
