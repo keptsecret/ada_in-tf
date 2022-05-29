@@ -1,4 +1,3 @@
-from statistics import variance
 import tensorflow as tf
 import tensorflow.keras as K
 
@@ -8,9 +7,14 @@ def preprocess(x, return_mean_std=False):
     rescale = K.layers.Rescaling(1./255)
 
     x = rescale(x)
-    mean = tf.math.reduce_mean(x, axis=[1,2])
-    std = tf.math.reduce_std(x, axis=[1,2])
-    variance = tf.pow(std, 2)
+    if return_mean_std:
+        # for single images on inference
+        mean = tf.math.reduce_mean(x, axis=[1,2])
+        std = tf.math.reduce_std(x, axis=[1,2])
+        variance = tf.math.pow(std, 2)
+    else:
+        mean = None
+        variance = None
     
     normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
     x = normalize(x)
