@@ -122,7 +122,7 @@ class StyleNet(K.Model):
         """
         super().__init__()
 
-        self.encoder = Encoder(trainable_layers=[4])
+        self.encoder = Encoder()
         self.adain = AdaIN()
         self.decoder = Decoder()
 
