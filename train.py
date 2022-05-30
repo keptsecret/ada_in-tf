@@ -59,7 +59,7 @@ class Trainer():
 
         lr_schedule = K.optimizers.schedules.ExponentialDecay(
                                     initial_learning_rate=lr,
-                                    decay_steps=num_iter//10,
+                                    decay_steps=num_iter//5,
                                     decay_rate=0.5)
         self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule)
 
