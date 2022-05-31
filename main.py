@@ -24,8 +24,18 @@ def infer(content_dir, style_dir, model_path, alpha, mixing):
     content_img = K.preprocessing.image.img_to_array(content_img)
     style_img = K.preprocessing.image.img_to_array(style_img)
 
-    content_img, c_mean, c_std = preprocess(tf.convert_to_tensor(content_img)[tf.newaxis, :], return_mean_std=True)
-    style_img, s_mean, s_std = preprocess(tf.convert_to_tensor(style_img)[tf.newaxis, :], return_mean_std=True)
+    content_img = tf.convert_to_tensor(content_img)[tf.newaxis, :]
+    style_img = tf.convert_to_tensor(style_img)[tf.newaxis, :]
+
+    if tf.shape(content_img)[3] != 3:
+        # most likely a grayscale image (size 1)
+        content_img = tf.repeat(content_img, 3, axis=-1)
+
+    if tf.shape(style_img)[3] != 3:
+        style_img = tf.repeat(style_img, 3, axis=-1)
+
+    content_img, c_mean, c_std = preprocess(content_img, return_mean_std=True)
+    style_img, s_mean, s_std = preprocess(style_img, return_mean_std=True)
 
     w = tf.shape(content_img)[1]
     h = tf.shape(content_img)[2]
