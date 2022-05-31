@@ -24,7 +24,7 @@ def preprocess(x, fix_mean_std=True, return_mean_std=False):
 
     normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
     x = normalize(x)
-    return (x, tf.constant(mean), tf.const(std)) if return_mean_std else x
+    return (x, tf.constant(mean), tf.constant(std)) if return_mean_std else x
 
 def denorm(x, mean, std):
     x = tf.clip_by_value(x * std + mean, 0, 1)
