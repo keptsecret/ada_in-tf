@@ -3,6 +3,10 @@ import tensorflow.keras as K
 
 from model import StyleNet
 
+MEAN = [0.485, 0.456, 0.406]
+STD = [0.229, 0.224, 0.225]
+VARIANCE = [0.052441, 0.050176, 0.050625]
+
 def preprocess(x, fix_mean_std=True, return_mean_std=False):
     rescale = K.layers.Rescaling(1./255)
 
@@ -14,9 +18,9 @@ def preprocess(x, fix_mean_std=True, return_mean_std=False):
         std = tf.math.reduce_std(x, axis=[1,2])
         variance = tf.math.pow(std, 2)
     else:
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
-        variance = [pow(x, 2) for x in std]
+        mean = MEAN
+        std = STD
+        variance = VARIANCE
 
     normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
     x = normalize(x)
