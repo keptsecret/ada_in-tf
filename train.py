@@ -3,18 +3,18 @@ import tensorflow.keras as K
 
 from model import StyleNet
 
-def preprocess(x, return_mean_std=False):
+def preprocess(x, fix_mean_std=True, return_mean_std=False):
     rescale = K.layers.Rescaling(1./255)
 
     x = rescale(x)
-    if return_mean_std:
+    if not fix_mean_std:
         # for single images on inference
         mean = tf.math.reduce_mean(x, axis=[1,2])
         std = tf.math.reduce_std(x, axis=[1,2])
-        variance = tf.math.pow(std, 2)
     else:
-        mean = None
-        variance = None
+        mean = tf.convert_to_tensor([0.485, 0.456, 0.406])
+        std = tf.convert_to_tensor([0.229, 0.224, 0.225])    
+    variance = tf.math.pow(std, 2)
 
     normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
     x = normalize(x)
