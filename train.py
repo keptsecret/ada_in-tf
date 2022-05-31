@@ -16,7 +16,7 @@ def preprocess(x, fix_mean_std=True, return_mean_std=False):
     else:
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
-        variance = [0.052441, 0.050176, 0.050625]
+        variance = [pow(x, 2) for x in std]
 
     normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
     x = normalize(x)
