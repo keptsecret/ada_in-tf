@@ -9,16 +9,18 @@ def preprocess(x, fix_mean_std=True, return_mean_std=False):
     x = rescale(x)
     if not fix_mean_std:
         # for single images on inference
+        # as far as I can tell, cannot be passed as arg to Normalization
         mean = tf.math.reduce_mean(x, axis=[1,2])
         std = tf.math.reduce_std(x, axis=[1,2])
+        variance = tf.math.pow(std, 2)
     else:
-        mean = tf.constant([0.485, 0.456, 0.406])
-        std = tf.constant([0.229, 0.224, 0.225])    
-    variance = tf.math.pow(std, 2)
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+        variance = [0.052441, 0.050176, 0.050625]
 
     normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
     x = normalize(x)
-    return (x, mean, std) if return_mean_std else x
+    return (x, tf.constant(mean), tf.const(std)) if return_mean_std else x
 
 def denorm(x, mean, std):
     x = tf.clip_by_value(x * std + mean, 0, 1)
