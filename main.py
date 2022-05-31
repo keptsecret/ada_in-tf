@@ -7,7 +7,7 @@ from train import Trainer, preprocess, denorm
 from model import StyleNet
 
 # this can be changed to affect quality of output image, minimum lowest (for minimal artifacting) 2048x2048
-UP_SIZE = (4096, 4096)
+UP_SIZE = (2048, 2048)
 
 def train(content_dir, style_dir):
     trainer = Trainer(content_dir, style_dir, batch_size=32, num_iter=1e4, lr=1e-4)
