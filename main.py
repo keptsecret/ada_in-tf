@@ -6,13 +6,14 @@ from PIL import Image
 from train import Trainer, preprocess, denorm
 from model import StyleNet
 
-UP_SIZE = (1024, 1024)
+# this can be changed to affect quality of output image, minimum lowest (for minimal artifacting) 2048x2048
+UP_SIZE = (4096, 4096)
 
 def train(content_dir, style_dir):
     trainer = Trainer(content_dir, style_dir, batch_size=32, num_iter=1e4, lr=1e-4)
     trainer.train()
 
-def infer(content_dir, style_dir, model_path, alpha):
+def infer(content_dir, style_dir, model_path, alpha, mixing):
     try:
         content_img = Image.open(content_dir)
         style_img = Image.open(style_dir)
@@ -38,8 +39,8 @@ def infer(content_dir, style_dir, model_path, alpha):
     model.load_weights(model_path)
     print(model.summary())
 
-    f_mean = (1-alpha) * c_mean + alpha * s_mean
-    f_std = (1-alpha) * c_std + alpha * s_std
+    f_mean = (1-mixing) * c_mean + mixing * s_mean
+    f_std = (1-mixing) * c_std + mixing * s_std
     stylized_img, _ = model(dict(content_imgs=content_img, style_imgs=style_img, alpha=alpha))
     stylized_img = denorm(tf.image.resize(stylized_img, [w, h]), f_mean, f_std)
     K.utils.save_img("image.png", stylized_img[0], scale=True)
@@ -51,9 +52,10 @@ if __name__ == "__main__":
     parser.add_argument('style_dir', metavar='style_directory', type=str, help="path to directory of style images")
     parser.add_argument('--model_path', type=str, help="path to trained model")
     parser.add_argument('--alpha', type=float, help="strength of style transfer (only on inference)")
+    parser.add_argument('--mixing', type=float, help="specify amount of color mixing amount between content (0) and style image (1)", default=0.6)
     args = parser.parse_args()
 
     if args.action == 'train':
         train(args.content_dir, args.style_dir)
     if args.action == 'infer':
-        infer(args.content_dir, args.style_dir, args.model_path, args.alpha)
+        infer(args.content_dir, args.style_dir, args.model_path, args.alpha, args.mixing)
