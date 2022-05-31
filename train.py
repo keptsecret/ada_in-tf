@@ -12,8 +12,8 @@ def preprocess(x, fix_mean_std=True, return_mean_std=False):
         mean = tf.math.reduce_mean(x, axis=[1,2])
         std = tf.math.reduce_std(x, axis=[1,2])
     else:
-        mean = tf.convert_to_tensor([0.485, 0.456, 0.406])
-        std = tf.convert_to_tensor([0.229, 0.224, 0.225])    
+        mean = tf.constant([0.485, 0.456, 0.406])
+        std = tf.constant([0.229, 0.224, 0.225])    
     variance = tf.math.pow(std, 2)
 
     normalize = K.layers.Normalization(axis=-1, mean=mean, variance=variance)
