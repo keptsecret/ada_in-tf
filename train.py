@@ -1,5 +1,6 @@
 import tensorflow as tf
 import tensorflow.keras as K
+from tqdm import tqdm
 
 from model import StyleNet
 
@@ -65,8 +66,9 @@ class Trainer():
 
         lr_schedule = K.optimizers.schedules.ExponentialDecay(
                                     initial_learning_rate=lr,
-                                    decay_steps=num_iter//5,
-                                    decay_rate=0.5)
+                                    decay_steps=num_iter//10,
+                                    decay_rate=0.5,
+                                    staircase=True)
         self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule)
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
@@ -95,30 +97,34 @@ class Trainer():
 
     def train(self):
         step = 0
+        interval = 200
+
         while step < self.num_iter:
-            content_batch = self.content_iter.get_next()
-            if content_batch.shape[0] != self.batch_size:
+            print(f"\nIteration {step+1}/{self.num_iter}")
+            progbar = K.utils.Progbar(interval)
+            i = 0
+
+            while i < interval:
                 content_batch = self.content_iter.get_next()
+                if content_batch.shape[0] != self.batch_size:
+                    content_batch = self.content_iter.get_next()
 
-            style_batch = self.style_iter.get_next()
-            if style_batch.shape[0] != self.batch_size:
                 style_batch = self.style_iter.get_next()
+                if style_batch.shape[0] != self.batch_size:
+                    style_batch = self.style_iter.get_next()
 
-            with tf.GradientTape() as tape:
-                stylized_imgs, t = self.model(dict(content_imgs=content_batch, style_imgs=style_batch, alpha=1.0))
-                loss = self.criterion(stylized_imgs, style_batch, t)
+                with tf.GradientTape() as tape:
+                    stylized_imgs, t = self.model(dict(content_imgs=content_batch, style_imgs=style_batch, alpha=1.0))
+                    loss = self.criterion(stylized_imgs, style_batch, t)
 
-            gradients = tape.gradient(loss, self.model.trainable_weights)
-            self.optimizer.apply_gradients(zip(gradients, self.model.trainable_weights))
+                gradients = tape.gradient(loss, self.model.trainable_weights)
+                self.optimizer.apply_gradients(zip(gradients, self.model.trainable_weights))
 
-            # log and save every 200 batches
-            if step % 200 == 0:
-                print(f'Training loss (for one batch) at step {step}: {loss}')
-                print(f'Seen so far: {(step+1)*self.batch_size} samples')
+                step += 1
+                i += 1
+                progbar.update(i, values=[('loss', loss)])
 
-                self.model.save_weights(f'./checkpoints/adain_e{step}.ckpt')
-
-            step += 1
+            self.model.save_weights(f'./checkpoints/adain_e{step}.ckpt')
 
         print("Finished training...")
         self.model.save_weights('saved_model/adain_weights.h5')
