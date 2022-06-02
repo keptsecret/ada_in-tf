@@ -66,10 +66,10 @@ class Trainer():
 
         lr_schedule = K.optimizers.schedules.ExponentialDecay(
                                     initial_learning_rate=lr,
-                                    decay_steps=num_iter//10,
+                                    decay_steps=num_iter//4,
                                     decay_rate=0.5,
                                     staircase=True)
-        self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule)
+        self.optimizer = K.optimizers.Adam(learning_rate=lr_schedule, epsilon=1e-8)
 
     def _compute_mean_std(self, feats : tf.Tensor, eps=1e-8):
         """
@@ -100,7 +100,7 @@ class Trainer():
         interval = 200
 
         while step < self.num_iter:
-            print(f"\nIteration {step+1}/{self.num_iter}")
+            print(f"\nIteration {step+1}/{int(self.num_iter)}")
             progbar = K.utils.Progbar(interval)
             i = 0
 
