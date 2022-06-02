@@ -18,15 +18,17 @@ Current script will save only the model weights by default as a Keras HDF5 file 
 For sampling on inference, run:
 
 ```bash
-python main.py infer <path/to/content-image> <path/to/style-image> --model_path <path/to/model-weights> --alpha <alpha> --mixing <mixing-ratio>
+python main.py infer <path/to/content-image> <path/to/style-image> --model_path <path/to/model-weights> --alpha <alpha> --samples <samples>
 ```
 
 ## Observations
 
-On inference, the images are upsampled by default to a 4096x4096 shape using bilinear interpolation before being passed to the model.
+On inference, the images are upsampled by default to a 2048x2048 shape using bilinear interpolation before being passed to the model.
 This I found to provide the best resulting output images when downsampled back to the original size of the content images.
-That said, 2048x2048 will also work to produce minimal artifacting on medium-sized images and 1024x1024 upsampling will also work on small images.
+That said, 1024x1024 will also work to produce minimal artifacting on medium-sized images but going higher will usually produce better results.
 
-Results pending...
-
-_Trained on TF v2.6.0_
+|Content|Style|Result|
+|:---:|:---:|:---:|
+|<img src="./sample_images/content/000000003136.jpg" width="500px"> | <img src="./sample_images/style/24.jpg" width="500px">| <img src="./sample_images/result/3136-24.png" width="500px">|
+|<img src="./sample_images/content/000000000155.jpg" width="500px"> | <img src="./sample_images/style/107.jpg" width="500px">| <img src="./sample_images/result/155-107.png" width="500px">|
+|<img src="./sample_images/content/000000002122.jpg" width="500px"> | <img src="./sample_images/style/171.jpg" width="500px">| <img src="./sample_images/result/2122-171.png" width="500px">|
